@@ -1,0 +1,1055 @@
+﻿<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>RUP — Cinema, Series & Anime in Liquid Glass</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & Syne for Apple-grade display typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+  <!-- Tailwind Configuration -->
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            display: ['Syne', 'Inter', 'sans-serif'],
+          },
+          transitionTimingFunction: {
+            'apple': 'cubic-bezier(0.22, 1, 0.36, 1)',
+            'spring': 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Custom Liquid Glass Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="min-h-screen selection:bg-white selection:text-black">
+
+  <!-- ==========================================================================
+       APPLE MUSIC FLUID MOVING MESH GRADIENT CANVAS
+       ========================================================================== -->
+  <canvas id="ambient-canvas"></canvas>
+  <div class="noise-overlay"></div>
+
+  <!-- ==========================================================================
+       TOP FLOATING LIQUID GLASS HEADER (SYMMETRIC 3-COLUMN ALIGNMENT)
+       ========================================================================== -->
+  <header class="fixed top-0 left-0 right-0 z-30 px-4 sm:px-8 pt-4 pb-2 pointer-events-none">
+    <div class="max-w-[1440px] mx-auto flex items-center justify-between lg:grid lg:grid-cols-3 gap-3">
+      
+      <!-- Left Column: Brand Identity RUP -->
+      <div class="flex items-center justify-start">
+        <div onclick="switchNav('home')" class="pointer-events-auto cursor-pointer liquid-glass h-12 px-4 pr-5 rounded-full flex items-center gap-3 group">
+          <div class="w-8 h-8 rounded-full flex items-center justify-center font-display font-extrabold text-base tracking-tighter shadow-md group-hover:rotate-12 transition-transform duration-500" style="background: var(--btn-primary-bg); color: var(--btn-primary-text);">
+            R
+          </div>
+          <div class="flex items-center gap-2.5">
+            <span class="font-display font-extrabold text-lg sm:text-xl tracking-[0.18em]">RUP</span>
+            <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border border-current opacity-70">4K HDR</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center Column: Quick Category Filter Pills (Dead-Center on Desktop) -->
+      <div class="hidden md:flex items-center justify-center">
+        <div class="flex items-center gap-1 liquid-glass h-12 p-1.5 rounded-full pointer-events-auto">
+          <button onclick="filterGlobalType('all')" id="top-pill-all" class="top-type-pill h-full px-4 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 pill-active flex items-center">
+            All Global
+          </button>
+          <button onclick="filterGlobalType('movie')" id="top-pill-movie" class="top-type-pill h-full px-4 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 opacity-75 hover:opacity-100 flex items-center">
+            <i class="fa-solid fa-film mr-1.5 opacity-70"></i>Movies
+          </button>
+          <button onclick="filterGlobalType('series')" id="top-pill-series" class="top-type-pill h-full px-4 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 opacity-75 hover:opacity-100 flex items-center">
+            <i class="fa-solid fa-tv mr-1.5 opacity-70"></i>Web-Series
+          </button>
+          <button onclick="filterGlobalType('anime')" id="top-pill-anime" class="top-type-pill h-full px-4 rounded-full text-xs font-semibold tracking-wide transition-all duration-300 opacity-75 hover:opacity-100 flex items-center">
+            <i class="fa-solid fa-dragon mr-1.5 opacity-70"></i>Anime
+          </button>
+        </div>
+      </div>
+
+      <!-- Right Column: Quick Actions (Audio/Sub Status, Quick Theme, API Status, Profile) -->
+      <div class="flex items-center justify-end gap-2 sm:gap-2.5 pointer-events-auto">
+        <!-- Global Language & Dub Indicator -->
+        <button onclick="switchNav('search')" title="Multi-Language Dubs & Subtitles Active" class="hidden sm:flex items-center gap-2 liquid-glass h-12 px-4 rounded-full text-xs font-semibold hover:scale-105 transition-transform">
+          <i class="fa-solid fa-language text-sm opacity-80"></i>
+          <span>32+ Dubs &amp; Subs</span>
+        </button>
+
+        <!-- Quick Theme Cycle Button -->
+        <button onclick="cycleQuickTheme()" title="Cycle Liquid Glass Theme" class="liquid-glass w-12 h-12 rounded-full flex items-center justify-center hover:scale-110 active:scale-95 transition-all">
+          <i class="fa-solid fa-wand-magic-sparkles text-sm"></i>
+        </button>
+
+        <!-- Quick API Status Badge -->
+        <button onclick="switchNav('settings')" id="api-status-badge" class="hidden xl:flex items-center gap-2 liquid-glass h-12 px-4 rounded-full text-xs font-semibold hover:scale-105 transition-transform">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span id="api-status-text">Hybrid API Live</span>
+        </button>
+
+        <!-- Active Profile Avatar -->
+        <button onclick="switchNav('profile')" class="liquid-glass h-12 pl-2 pr-4 rounded-full flex items-center gap-2.5 hover:scale-105 transition-transform">
+          <div id="header-user-avatar" class="w-8 h-8 rounded-full font-bold text-xs flex items-center justify-center shadow-sm" style="background: var(--btn-primary-bg); color: var(--btn-primary-text);">
+            G
+          </div>
+          <span id="header-user-name" class="text-xs font-semibold hidden sm:inline max-w-[90px] truncate">Guest</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       MAIN DYNAMIC VIEWPORT CONTAINER
+       ========================================================================== -->
+  <main id="app-main" class="relative z-10 pt-24 pb-36 px-4 sm:px-8 max-w-[1440px] mx-auto min-h-screen">
+
+    <!-- ========================================================================
+         1. HOME VIEW (HERO SPOTLIGHT + NETFLIX/APPLE TV+/PRIME ROWS)
+         ======================================================================== -->
+    <section id="view-home" class="view-section space-y-12">
+      
+      <!-- Mobile Category Switcher -->
+      <div class="flex md:hidden items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+        <button onclick="filterGlobalType('all')" class="px-4 py-2 rounded-full text-xs font-semibold liquid-glass shrink-0">All Global</button>
+        <button onclick="filterGlobalType('movie')" class="px-4 py-2 rounded-full text-xs font-semibold liquid-glass shrink-0">Movies</button>
+        <button onclick="filterGlobalType('series')" class="px-4 py-2 rounded-full text-xs font-semibold liquid-glass shrink-0">Web-Series</button>
+        <button onclick="filterGlobalType('anime')" class="px-4 py-2 rounded-full text-xs font-semibold liquid-glass shrink-0">Anime</button>
+      </div>
+
+      <!-- Hero Spotlight Banner (Aligned Flex Footer so Dots & Content Never Collide) -->
+      <div id="hero-banner" class="relative rounded-[2rem] sm:rounded-[2.5rem] overflow-hidden liquid-glass min-h-[500px] sm:min-h-[580px] flex items-end p-6 sm:p-10 lg:p-12 group">
+        <!-- Dynamic Hero Background Image -->
+        <img id="hero-backdrop" src="https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=1800&q=85" alt="Featured Title" class="absolute inset-0 w-full h-full object-cover object-center scale-105 group-hover:scale-100 transition-transform duration-1000 ease-apple" />
+        
+        <!-- Multi-layer Cinematic Vignette -->
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/65 to-black/15"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-black/90 via-black/45 to-transparent"></div>
+
+        <!-- Hero Foreground Flex Wrapper -->
+        <div class="relative z-10 w-full flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+          
+          <!-- Left Hero Details -->
+          <div class="max-w-2xl space-y-4 sm:space-y-5 text-white">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest bg-white text-black shadow-sm">
+                <i class="fa-solid fa-crown mr-1"></i> RUP Premiere
+              </span>
+              <span id="hero-type-badge" class="liquid-glass px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider text-white">
+                Sci-Fi Odyssey
+              </span>
+              <span id="hero-rating" class="liquid-glass px-3 py-1 rounded-full text-xs font-semibold text-amber-300">
+                <i class="fa-solid fa-star mr-1"></i> 9.4 IMDb
+              </span>
+              <span class="liquid-glass px-3 py-1 rounded-full text-xs font-medium text-white/90">
+                4K Dolby Vision • Atmos
+              </span>
+            </div>
+
+            <h1 id="hero-title" class="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl tracking-tight leading-[1.05]">
+              CHRONOS: ZERO HORIZON
+            </h1>
+
+            <p id="hero-desc" class="text-sm sm:text-base text-white/80 line-clamp-3 leading-relaxed max-w-xl">
+              Across fractured timelines, an exiled astro-architect discovers a sentient monochrome relic capable of rewriting human memory. Available with 18 multi-language studio dubs and 34 subtitle tracks.
+            </p>
+
+            <!-- Language & Dub Pills on Hero -->
+            <div class="flex flex-wrap items-center gap-2 text-xs text-white/80">
+              <span class="font-semibold text-white flex items-center"><i class="fa-solid fa-microphone-lines mr-1.5 opacity-80"></i>Dubs:</span>
+              <span id="hero-dubs" class="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/10">EN • JA • HI • ES • FR • KO • DE</span>
+              <span class="font-semibold text-white ml-1 flex items-center"><i class="fa-solid fa-closed-captioning mr-1.5 opacity-80"></i>Subs:</span>
+              <span class="px-2.5 py-1 rounded-lg bg-white/10 backdrop-blur-md border border-white/10">All 32 Languages</span>
+            </div>
+
+            <!-- Hero Action Buttons -->
+            <div class="pt-2 flex flex-wrap items-center gap-3.5">
+              <button id="hero-play-btn" onclick="openPlayerById('mov-1')" class="px-8 py-3.5 rounded-full font-bold text-sm sm:text-base flex items-center gap-3 bg-white text-black shadow-xl hover:scale-105 active:scale-95 transition-all">
+                <i class="fa-solid fa-play text-sm"></i>
+                <span>Play Now</span>
+              </button>
+
+              <button id="hero-watchlist-btn" onclick="toggleWatchlist('mov-1')" class="liquid-glass px-6 py-3.5 rounded-full font-semibold text-sm sm:text-base text-white flex items-center gap-2.5 hover:bg-white/20">
+                <i class="fa-solid fa-plus"></i>
+                <span>Watchlist</span>
+              </button>
+
+              <button id="hero-details-btn" onclick="openDetailsModal('mov-1')" class="liquid-glass w-12 h-12 rounded-full flex items-center justify-center text-white hover:bg-white/20 hover:scale-105 transition-all" title="More Info & Episodes">
+                <i class="fa-solid fa-info"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Right Hero Carousel Selector Dots -->
+          <div class="flex items-center justify-between lg:justify-end gap-3 self-stretch lg:self-end pt-2 lg:pt-0">
+            <div id="hero-dots" class="flex items-center gap-2 liquid-glass px-3.5 py-2 rounded-full">
+              <!-- Populated dynamically by JS -->
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Continue Watching Row (Dynamic) -->
+      <div id="continue-watching-container" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg sm:text-xl font-bold tracking-tight flex items-center gap-2.5">
+              <i class="fa-solid fa-clock-rotate-left opacity-70 text-sm"></i>
+              <span>Continue Watching</span>
+            </h2>
+          </div>
+          <button onclick="switchNav('library')" class="text-xs font-semibold opacity-70 hover:opacity-100 flex items-center gap-1.5 liquid-glass px-3.5 py-1.5 rounded-full">
+            <span>Open Library</span>
+            <i class="fa-solid fa-chevron-right text-[10px]"></i>
+          </button>
+        </div>
+        <div id="row-continue" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Trending Blockbuster Movies Row -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg sm:text-2xl font-bold tracking-tight">Global Cinema &amp; Blockbusters</h2>
+            <p class="text-xs opacity-60 mt-0.5">Multi-language studio dubs • 4K HDR10+ Mastered</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="scrollCarousel('row-movies', -1)" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center hover:scale-105"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+            <button onclick="scrollCarousel('row-movies', 1)" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center hover:scale-105"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+          </div>
+        </div>
+        <div id="row-movies" class="flex items-stretch gap-5 overflow-x-auto no-scrollbar py-5 px-2 -mx-2">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Prestige Web-Series Row -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div>
+            <h2 class="text-lg sm:text-2xl font-bold tracking-tight">Prestige Web-Series &amp; Originals</h2>
+            <p class="text-xs opacity-60 mt-0.5">Full seasons • Instant episode switching • Global audio tracks</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="scrollCarousel('row-series', -1)" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center hover:scale-105"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+            <button onclick="scrollCarousel('row-series', 1)" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center hover:scale-105"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+          </div>
+        </div>
+        <div id="row-series" class="flex items-stretch gap-5 overflow-x-auto no-scrollbar py-5 px-2 -mx-2">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Simulcast & Legendary Anime Row (Powered by Live Jikan API + Curated) -->
+      <div class="space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div>
+              <div class="flex items-center gap-2.5">
+                <h2 class="text-lg sm:text-2xl font-bold tracking-tight">Simulcast &amp; Legendary Anime</h2>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider liquid-glass">SUB + DUB</span>
+              </div>
+              <p class="text-xs opacity-60 mt-0.5">Original Japanese Seiyuu + English, Hindi, Spanish &amp; Korean Dubs</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="fetchLiveJikanAnime(true)" title="Sync Live Top Anime from Jikan API" class="liquid-glass px-3.5 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 hover:scale-105">
+              <i id="jikan-sync-icon" class="fa-solid fa-rotate text-xs"></i>
+              <span class="hidden sm:inline">Live Anime Sync</span>
+            </button>
+            <button onclick="scrollCarousel('row-anime', -1)" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center hover:scale-105"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+            <button onclick="scrollCarousel('row-anime', 1)" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center hover:scale-105"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+          </div>
+        </div>
+        <div id="row-anime" class="flex items-stretch gap-5 overflow-x-auto no-scrollbar py-5 px-2 -mx-2">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================================================
+         2. SEARCH VIEW (UNIFIED GLOBAL SEARCH + DUB/SUB/LANGUAGE FILTERS)
+         ======================================================================== -->
+    <section id="view-search" class="view-section hidden space-y-8">
+      <div class="max-w-4xl mx-auto text-center space-y-3">
+        <h1 class="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">Universal Discovery</h1>
+        <p class="text-sm opacity-70">Search across Movies, Web-Series, and Anime by title, director, studio, dubbing language, or subtitle track.</p>
+      </div>
+
+      <!-- Liquid Glass Search Bar -->
+      <div class="max-w-3xl mx-auto">
+        <div class="liquid-glass-elevated rounded-full p-2 pl-6 flex items-center gap-3">
+          <i class="fa-solid fa-magnifying-glass text-lg opacity-60"></i>
+          <input
+            id="global-search-input"
+            type="text"
+            oninput="handleSearchInput()"
+            onkeydown="if(event.key==='Enter') triggerLiveExternalSearch()"
+            placeholder="Search movies, series, anime (e.g., Attack on Titan, Dune, Severance, Cyberpunk)..."
+            class="w-full bg-transparent border-none outline-none text-sm sm:text-base placeholder:opacity-50"
+          />
+          <button onclick="clearSearchInput()" id="clear-search-btn" class="hidden w-9 h-9 rounded-full liquid-glass items-center justify-center text-xs shrink-0">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+          <button onclick="triggerLiveExternalSearch()" class="btn-liquid-primary px-6 py-3 rounded-full text-xs sm:text-sm font-bold shrink-0">
+            Search All
+          </button>
+        </div>
+      </div>
+
+      <!-- Multi-Dimension Filter Bar (Type, Dub Language, Subtitle Language, Quality) -->
+      <div class="liquid-glass rounded-3xl p-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Format Filter -->
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider opacity-60 mb-1.5">Media Format</label>
+            <select id="filter-format" onchange="handleSearchInput()" class="w-full liquid-glass rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none bg-transparent">
+              <option value="all" class="bg-zinc-900 text-white">All Formats (Movies, Series, Anime)</option>
+              <option value="movie" class="bg-zinc-900 text-white">Movies Only</option>
+              <option value="series" class="bg-zinc-900 text-white">Web-Series Only</option>
+              <option value="anime" class="bg-zinc-900 text-white">Anime Only</option>
+            </select>
+          </div>
+
+          <!-- Audio Dubbing Filter -->
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider opacity-60 mb-1.5">Audio Dubbing Language</label>
+            <select id="filter-dub" onchange="handleSearchInput()" class="w-full liquid-glass rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none bg-transparent">
+              <option value="all" class="bg-zinc-900 text-white">Any Audio Dubbing (32+ Languages)</option>
+              <option value="English" class="bg-zinc-900 text-white">English Dub</option>
+              <option value="Japanese" class="bg-zinc-900 text-white">Japanese (Original Seiyuu)</option>
+              <option value="Hindi" class="bg-zinc-900 text-white">Hindi Dub (हिन्दी)</option>
+              <option value="Spanish" class="bg-zinc-900 text-white">Spanish (Español Latino / Castilian)</option>
+              <option value="French" class="bg-zinc-900 text-white">French (Français)</option>
+              <option value="Korean" class="bg-zinc-900 text-white">Korean (한국어)</option>
+              <option value="German" class="bg-zinc-900 text-white">German (Deutsch)</option>
+            </select>
+          </div>
+
+          <!-- Subtitle Filter -->
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider opacity-60 mb-1.5">Subtitles / Captions</label>
+            <select id="filter-sub" onchange="handleSearchInput()" class="w-full liquid-glass rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none bg-transparent">
+              <option value="all" class="bg-zinc-900 text-white">All Global Subtitles Included</option>
+              <option value="English" class="bg-zinc-900 text-white">English [CC]</option>
+              <option value="Hindi" class="bg-zinc-900 text-white">Hindi Subtitles</option>
+              <option value="Japanese" class="bg-zinc-900 text-white">Japanese KanjiSubs</option>
+              <option value="Spanish" class="bg-zinc-900 text-white">Spanish Subtitles</option>
+              <option value="Arabic" class="bg-zinc-900 text-white">Arabic Subtitles (العربية)</option>
+              <option value="Russian" class="bg-zinc-900 text-white">Russian Subtitles</option>
+            </select>
+          </div>
+
+          <!-- Sort Order -->
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider opacity-60 mb-1.5">Sort Results By</label>
+            <select id="filter-sort" onchange="handleSearchInput()" class="w-full liquid-glass rounded-xl px-3.5 py-2.5 text-xs font-semibold outline-none bg-transparent">
+              <option value="rating" class="bg-zinc-900 text-white">Highest IMDb / MAL Score</option>
+              <option value="year" class="bg-zinc-900 text-white">Newest Release Year</option>
+              <option value="title" class="bg-zinc-900 text-white">Alphabetical (A - Z)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Search Results Grid -->
+      <div class="space-y-4">
+        <div class="flex items-center justify-between">
+          <span id="search-results-count" class="text-xs font-semibold uppercase tracking-wider opacity-70">Showing All Titles</span>
+        </div>
+        <div id="search-results-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         3. GENRE VIEW (INTERACTIVE LIQUID GLASS GENRE HUBS)
+         ======================================================================== -->
+    <section id="view-genre" class="view-section hidden space-y-8">
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+          <h1 class="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">Explore by Genre &amp; Mood</h1>
+          <p class="text-sm opacity-70 mt-1">Curated liquid glass realms spanning Cinema, Series, and Anime subcultures.</p>
+        </div>
+        <button onclick="selectGenre('all')" id="genre-reset-btn" class="liquid-glass px-5 py-2.5 rounded-full text-xs font-semibold self-start sm:self-auto">
+          Show All Genres
+        </button>
+      </div>
+
+      <!-- Genre Cards Grid -->
+      <div id="genre-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+        <!-- Populated by JS -->
+      </div>
+
+      <!-- Filtered Genre Catalog -->
+      <div class="space-y-4 pt-4">
+        <div class="flex items-center justify-between">
+          <h2 id="selected-genre-heading" class="text-xl sm:text-2xl font-bold tracking-tight">All Genre Masterpieces</h2>
+          <span id="selected-genre-count" class="text-xs font-semibold opacity-60"></span>
+        </div>
+        <div id="genre-results-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         4. LIBRARY VIEW (WATCHLIST, FAVORITES, CONTINUE WATCHING)
+         ======================================================================== -->
+    <section id="view-library" class="view-section hidden space-y-10">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 class="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">Your Personal Vault</h1>
+          <p class="text-sm opacity-70 mt-1">Saved movies, binge-ready web-series, and bookmarked anime episodes.</p>
+        </div>
+        <div class="flex items-center gap-1.5 liquid-glass p-1.5 rounded-full self-start">
+          <button onclick="switchLibraryTab('watchlist')" id="lib-tab-watchlist" class="px-4 py-2 rounded-full text-xs font-bold pill-active transition-all">
+            Watchlist
+          </button>
+          <button onclick="switchLibraryTab('favorites')" id="lib-tab-favorites" class="px-4 py-2 rounded-full text-xs font-bold opacity-70 hover:opacity-100 transition-all">
+            Favorites
+          </button>
+          <button onclick="switchLibraryTab('history')" id="lib-tab-history" class="px-4 py-2 rounded-full text-xs font-bold opacity-70 hover:opacity-100 transition-all">
+            History
+          </button>
+        </div>
+      </div>
+
+      <div id="library-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5">
+        <!-- Populated by JS -->
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         5. SETTINGS VIEW (APPLE MUSIC MOVING GRADIENT THEMES + API KEY HUB)
+         ======================================================================== -->
+    <section id="view-settings" class="view-section hidden space-y-10">
+      <div>
+        <h1 class="font-display font-extrabold text-3xl sm:text-5xl tracking-tight">Studio Settings &amp; Engine</h1>
+        <p class="text-sm opacity-70 mt-1">Customize your Liquid Glass theme, moving mesh gradients, playback preferences, and live global API keys.</p>
+      </div>
+
+      <!-- A. PREMIUM LIQUID GLASS & APPLE MUSIC GRADIENT THEMES -->
+      <div class="liquid-glass rounded-[2rem] p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-current/10 pb-5">
+          <div>
+            <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Visual Atmosphere</span>
+            <h2 class="text-xl sm:text-2xl font-bold mt-0.5">Liquid Glass &amp; Moving Mesh Themes</h2>
+            <p class="text-xs opacity-70 mt-1">Powered by a real-time Apple Music fluid shader canvas that adapts to your chosen color palette.</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <label class="text-xs font-semibold flex items-center gap-2.5 cursor-pointer liquid-glass px-4 py-2.5 rounded-full">
+              <input type="checkbox" id="toggle-motion-canvas" checked onchange="toggleFluidAnimation(this.checked)" class="accent-current" />
+              <span>Fluid Gradient Motion</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Theme Swatches Grid -->
+        <div id="theme-selector-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+
+      <!-- B. GLOBAL API KEYS & STREAMING SERVER CONFIGURATION HUB -->
+      <div class="liquid-glass rounded-[2rem] p-6 sm:p-8 space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-current/10 pb-5">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Developer &amp; Owner Control</span>
+              <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-400/30">Ready for GitHub</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-bold mt-0.5">Global Movies, Series &amp; Anime API Hub</h2>
+            <p class="text-xs opacity-70 mt-1">
+              Paste your free API keys below to unlock millions of live titles, or edit the <code class="px-1.5 py-0.5 rounded bg-white/10 font-mono">RUP_CONFIG</code> object directly at the top of <code class="px-1.5 py-0.5 rounded bg-white/10 font-mono">app.js</code>!
+            </p>
+          </div>
+          <button onclick="saveAndSyncApis()" class="btn-liquid-primary px-6 py-3 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 self-start shrink-0">
+            <i class="fa-solid fa-bolt"></i>
+            <span>Save &amp; Sync Live Catalog</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- TMDB API Key (Movies & Web-Series) -->
+          <div class="liquid-glass rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-film opacity-75"></i>
+                TMDB API Key (Movies &amp; Web-Series)
+              </span>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full liquid-glass font-semibold">themoviedb.org</span>
+            </div>
+            <p class="text-xs opacity-65">Fetches global movies, Netflix/Prime/Disney+ web-series, posters, cast, and multi-language translations.</p>
+            <input
+              id="input-tmdb-key"
+              type="password"
+              placeholder="Paste your TMDB v3 API Key here..."
+              class="w-full liquid-glass rounded-xl px-4 py-2.5 text-xs font-mono outline-none bg-transparent"
+            />
+          </div>
+
+          <!-- OMDb API Key (IMDb Ratings & Metadata) -->
+          <div class="liquid-glass rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-star text-amber-400"></i>
+                OMDb API Key (IMDb Global Database)
+              </span>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full liquid-glass font-semibold">omdbapi.com</span>
+            </div>
+            <p class="text-xs opacity-65">Provides verified IMDb ratings, Rotten Tomatoes scores, box office data, and global release details.</p>
+            <input
+              id="input-omdb-key"
+              type="password"
+              placeholder="Paste your OMDb API Key here (e.g., 8a92b1c)..."
+              class="w-full liquid-glass rounded-xl px-4 py-2.5 text-xs font-mono outline-none bg-transparent"
+            />
+          </div>
+
+          <!-- Anime API Endpoint (Jikan v4 / AniList / Consumet) -->
+          <div class="liquid-glass rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-dragon text-rose-400"></i>
+                Anime API Provider (Jikan / AniList)
+              </span>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold">No Key Needed • Active</span>
+            </div>
+            <p class="text-xs opacity-65">Pre-configured with Jikan v4 (MyAnimeList) free public API. You can also add a custom Consumet or AniList endpoint.</p>
+            <input
+              id="input-anime-endpoint"
+              type="text"
+              value="https://api.jikan.moe/v4"
+              class="w-full liquid-glass rounded-xl px-4 py-2.5 text-xs font-mono outline-none bg-transparent"
+            />
+          </div>
+
+          <!-- Multi-Server Streaming Embed Gateway -->
+          <div class="liquid-glass rounded-2xl p-5 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm flex items-center gap-2">
+                <i class="fa-solid fa-play-circle text-sky-400"></i>
+                Video Stream Gateway Mode
+              </span>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full liquid-glass font-semibold">4K Liquid Player</span>
+            </div>
+            <p class="text-xs opacity-65">Choose between RUP Native Liquid Glass Cinema Player (with built-in dub/sub controls) or External Embed Server.</p>
+            <select id="input-stream-mode" onchange="updateStreamMode(this.value)" class="w-full liquid-glass rounded-xl px-4 py-2.5 text-xs font-semibold outline-none bg-transparent">
+              <option value="native" class="bg-zinc-900 text-white">RUP Native Liquid Glass Player (Recommended • Full Dub/Sub UI)</option>
+              <option value="embed" class="bg-zinc-900 text-white">External Multi-Language Embed Server (VidSrc / AutoEmbed via TMDB ID)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- C. DEFAULT PLAYBACK, DUBBING & SUBTITLE PREFERENCES -->
+      <div class="liquid-glass rounded-[2rem] p-6 sm:p-8 space-y-6">
+        <h2 class="text-xl sm:text-2xl font-bold">Default Audio Dubbing &amp; Subtitle Engine</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          <div class="liquid-glass rounded-2xl p-4 space-y-2">
+            <label class="text-xs font-bold uppercase tracking-wider opacity-60">Preferred Audio Dub</label>
+            <select id="pref-default-dub" onchange="savePlaybackPrefs()" class="w-full bg-transparent text-sm font-semibold outline-none">
+              <option value="English" class="bg-zinc-900 text-white">English (Dolby Atmos 5.1)</option>
+              <option value="Japanese" class="bg-zinc-900 text-white">Japanese (Original Studio Audio)</option>
+              <option value="Hindi" class="bg-zinc-900 text-white">Hindi (हिन्दी Dub)</option>
+              <option value="Spanish" class="bg-zinc-900 text-white">Spanish (Español)</option>
+              <option value="French" class="bg-zinc-900 text-white">French (Français)</option>
+              <option value="Korean" class="bg-zinc-900 text-white">Korean (한국어)</option>
+            </select>
+          </div>
+
+          <div class="liquid-glass rounded-2xl p-4 space-y-2">
+            <label class="text-xs font-bold uppercase tracking-wider opacity-60">Preferred Subtitle Language</label>
+            <select id="pref-default-sub" onchange="savePlaybackPrefs()" class="w-full bg-transparent text-sm font-semibold outline-none">
+              <option value="English" class="bg-zinc-900 text-white">English [CC]</option>
+              <option value="Hindi" class="bg-zinc-900 text-white">Hindi (हिन्दी)</option>
+              <option value="Spanish" class="bg-zinc-900 text-white">Spanish (Español)</option>
+              <option value="Japanese" class="bg-zinc-900 text-white">Japanese (日本語)</option>
+              <option value="French" class="bg-zinc-900 text-white">French (Français)</option>
+              <option value="Arabic" class="bg-zinc-900 text-white">Arabic (العربية)</option>
+              <option value="Off" class="bg-zinc-900 text-white">Subtitles Off</option>
+            </select>
+          </div>
+
+          <div class="liquid-glass rounded-2xl p-4 space-y-2">
+            <label class="text-xs font-bold uppercase tracking-wider opacity-60">Default Stream Resolution</label>
+            <select id="pref-default-quality" onchange="savePlaybackPrefs()" class="w-full bg-transparent text-sm font-semibold outline-none">
+              <option value="4K HDR" class="bg-zinc-900 text-white">4K UHD Dolby Vision (2160p)</option>
+              <option value="1080p" class="bg-zinc-900 text-white">Full HD 1080p High Bitrate</option>
+              <option value="720p" class="bg-zinc-900 text-white">HD 720p Data Saver</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================================================
+         6. PROFILE & AUTHENTICATION VIEW (GOOGLE, FACEBOOK, TWITTER/X, EMAIL)
+         ======================================================================== -->
+    <section id="view-profile" class="view-section hidden space-y-10">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        
+        <!-- Left Column: Multi-Provider Authentication Card -->
+        <div class="lg:col-span-7 liquid-glass rounded-[2.2rem] p-6 sm:p-10 space-y-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Universal RUP ID</span>
+              <h1 id="auth-heading" class="font-display font-extrabold text-2xl sm:text-4xl mt-1">Sign in or Create Account</h1>
+            </div>
+            <div class="w-12 h-12 rounded-2xl liquid-glass flex items-center justify-center font-display font-extrabold text-xl">
+              R
+            </div>
+          </div>
+
+          <p class="text-xs sm:text-sm opacity-70">
+            Sync your Watchlist, Continue Watching progress, custom Liquid Glass themes, and preferred dub/subtitle languages across all devices.
+          </p>
+
+          <!-- Social Single-Click OAuth Buttons: Google, Facebook, Twitter/X -->
+          <div class="space-y-3">
+            <span class="block text-[11px] font-bold uppercase tracking-wider opacity-60">Instant Social Authentication</span>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <!-- Google -->
+              <button onclick="handleSocialAuth('Google')" class="liquid-glass hover:bg-white/15 py-3.5 px-4 rounded-2xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02]">
+                <i class="fa-brands fa-google text-base"></i>
+                <span>Google</span>
+              </button>
+              <!-- Facebook -->
+              <button onclick="handleSocialAuth('Facebook')" class="liquid-glass hover:bg-white/15 py-3.5 px-4 rounded-2xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02]">
+                <i class="fa-brands fa-facebook text-base text-blue-400"></i>
+                <span>Facebook</span>
+              </button>
+              <!-- Twitter / X -->
+              <button onclick="handleSocialAuth('X (Twitter)')" class="liquid-glass hover:bg-white/15 py-3.5 px-4 rounded-2xl font-semibold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all hover:scale-[1.02]">
+                <i class="fa-brands fa-x-twitter text-base"></i>
+                <span>Twitter / X</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="relative flex py-2 items-center">
+            <div class="flex-grow border-t border-current opacity-15"></div>
+            <span class="flex-shrink mx-4 text-xs uppercase tracking-widest opacity-50">Or with Email</span>
+            <div class="flex-grow border-t border-current opacity-15"></div>
+          </div>
+
+          <!-- Email & Password Form -->
+          <form onsubmit="handleEmailAuth(event)" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-semibold opacity-75 mb-1.5">Display Name</label>
+                <input id="auth-name" type="text" required placeholder="Alex Vance" class="w-full liquid-glass rounded-xl px-4 py-3 text-sm outline-none bg-transparent" />
+              </div>
+              <div>
+                <label class="block text-xs font-semibold opacity-75 mb-1.5">Email Address</label>
+                <input id="auth-email" type="email" required placeholder="alex@rup.cinema" class="w-full liquid-glass rounded-xl px-4 py-3 text-sm outline-none bg-transparent" />
+              </div>
+            </div>
+            <div>
+              <label class="block text-xs font-semibold opacity-75 mb-1.5">Password</label>
+              <input id="auth-password" type="password" required placeholder="••••••••••••" class="w-full liquid-glass rounded-xl px-4 py-3 text-sm outline-none bg-transparent" />
+            </div>
+            <div class="pt-2 flex flex-wrap items-center justify-between gap-4">
+              <button type="submit" class="btn-liquid-primary px-8 py-3.5 rounded-full text-sm font-bold flex items-center gap-2">
+                <i class="fa-solid fa-user-check"></i>
+                <span>Access RUP Account</span>
+              </button>
+              <button type="button" onclick="signOutUser()" class="liquid-glass px-5 py-3 rounded-full text-xs font-semibold opacity-75 hover:opacity-100">
+                Sign Out / Reset
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: Who's Watching Profile Switcher & Account Status -->
+        <div class="lg:col-span-5 space-y-6">
+          <div class="liquid-glass rounded-[2.2rem] p-6 sm:p-8 space-y-6">
+            <div class="flex items-center justify-between">
+              <div>
+                <span class="text-[11px] font-bold uppercase tracking-widest opacity-60">Netflix / Prime Style</span>
+                <h2 class="text-xl font-bold mt-0.5">Who's Watching RUP?</h2>
+              </div>
+              <span class="px-3 py-1 rounded-full text-[11px] font-bold pill-active">ULTRA 4K</span>
+            </div>
+
+            <!-- Profiles List -->
+            <div id="profiles-grid" class="grid grid-cols-2 gap-3.5">
+              <!-- Populated by JS -->
+            </div>
+
+            <!-- Active Account Summary -->
+            <div class="liquid-glass rounded-2xl p-4 space-y-2.5 text-xs">
+              <div class="flex justify-between">
+                <span class="opacity-65">Authenticated Via:</span>
+                <span id="profile-auth-provider" class="font-bold">Guest Session</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="opacity-65">Email:</span>
+                <span id="profile-auth-email" class="font-semibold">guest@rup.stream</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="opacity-65">Audio &amp; Subtitles:</span>
+                <span class="font-semibold text-emerald-400">All 32 Global Tracks Unlocked</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       BOTTOM CURVED LIQUID GLASS ISLAND NAVIGATION BAR
+       Includes: Home, Search, Genre, Library, Settings, Profile
+       ========================================================================== -->
+  <nav aria-label="Primary Bottom Navigation" class="fixed bottom-5 left-1/2 -translate-x-1/2 z-40 liquid-island liquid-island-nav p-1.5 sm:p-2 flex items-center gap-1 sm:gap-1.5 max-w-[96vw]">
+    
+    <button onclick="switchNav('home')" id="nav-btn-home" class="island-nav-btn group relative px-3.5 sm:px-5 py-2.5 rounded-full flex items-center justify-center gap-2 text-xs sm:text-sm font-bold transition-all duration-300 pill-active">
+      <i class="fa-solid fa-house text-sm"></i>
+      <span class="hidden sm:inline">Home</span>
+    </button>
+
+    <button onclick="switchNav('search')" id="nav-btn-search" class="island-nav-btn group relative px-3.5 sm:px-5 py-2.5 rounded-full flex items-center justify-center gap-2 text-xs sm:text-sm font-medium opacity-75 hover:opacity-100 transition-all duration-300">
+      <i class="fa-solid fa-magnifying-glass text-sm"></i>
+      <span class="hidden sm:inline">Search</span>
+    </button>
+
+    <button onclick="switchNav('genre')" id="nav-btn-genre" class="island-nav-btn group relative px-3.5 sm:px-5 py-2.5 rounded-full flex items-center justify-center gap-2 text-xs sm:text-sm font-medium opacity-75 hover:opacity-100 transition-all duration-300">
+      <i class="fa-solid fa-layer-group text-sm"></i>
+      <span class="hidden sm:inline">Genre</span>
+    </button>
+
+    <button onclick="switchNav('library')" id="nav-btn-library" class="island-nav-btn group relative px-3.5 sm:px-5 py-2.5 rounded-full flex items-center justify-center gap-2 text-xs sm:text-sm font-medium opacity-75 hover:opacity-100 transition-all duration-300">
+      <i class="fa-solid fa-bookmark text-sm"></i>
+      <span class="hidden sm:inline">Library</span>
+      <span id="island-watchlist-count" class="text-[10px] px-1.5 py-0.5 rounded-full bg-current/15 font-bold leading-none">3</span>
+    </button>
+
+    <button onclick="switchNav('settings')" id="nav-btn-settings" class="island-nav-btn group relative px-3.5 sm:px-5 py-2.5 rounded-full flex items-center justify-center gap-2 text-xs sm:text-sm font-medium opacity-75 hover:opacity-100 transition-all duration-300">
+      <i class="fa-solid fa-sliders text-sm"></i>
+      <span class="hidden sm:inline">Settings</span>
+    </button>
+
+    <button onclick="switchNav('profile')" id="nav-btn-profile" class="island-nav-btn group relative px-3.5 sm:px-5 py-2.5 rounded-full flex items-center justify-center gap-2 text-xs sm:text-sm font-medium opacity-75 hover:opacity-100 transition-all duration-300">
+      <i class="fa-solid fa-user-astronaut text-sm"></i>
+      <span class="hidden sm:inline">Profile</span>
+    </button>
+
+  </nav>
+
+  <!-- ==========================================================================
+       TITLE DETAILS & EPISODE / DUB SELECTOR MODAL (LIQUID GLASS)
+       ========================================================================== -->
+  <div id="details-modal" onclick="if(event.target===this) closeDetailsModal()" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-xl">
+    <div class="liquid-glass-elevated rounded-[2.2rem] max-w-4xl w-full max-h-[90vh] overflow-y-auto no-scrollbar relative border border-white/25 text-white">
+      
+      <!-- Close Button -->
+      <button onclick="closeDetailsModal()" class="absolute top-5 right-5 z-20 liquid-glass w-10 h-10 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+
+      <!-- Banner Header -->
+      <div class="relative h-64 sm:h-80 w-full overflow-hidden">
+        <img id="modal-backdrop" src="" alt="" class="w-full h-full object-cover" />
+        <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+        <div class="absolute bottom-6 left-6 right-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span id="modal-type" class="px-3 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-white text-black">MOVIE</span>
+              <span id="modal-year" class="text-xs font-semibold text-white/80">2026</span>
+              <span id="modal-rating" class="text-xs font-bold text-amber-400">★ 9.2</span>
+            </div>
+            <h2 id="modal-title" class="font-display font-extrabold text-2xl sm:text-4xl text-white">Title</h2>
+          </div>
+          <button id="modal-play-btn" class="px-7 py-3 rounded-full font-bold text-sm flex items-center gap-2.5 self-start sm:self-auto bg-white text-black shadow-lg hover:scale-105 transition-transform">
+            <i class="fa-solid fa-play"></i>
+            <span>Play in Liquid Player</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 sm:p-8 space-y-6 text-white">
+        <p id="modal-desc" class="text-sm sm:text-base text-white/80 leading-relaxed"></p>
+
+        <!-- Available Audio Dubs & Subtitles Matrix -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="liquid-glass rounded-2xl p-4 space-y-2.5">
+            <div class="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-2">
+              <i class="fa-solid fa-headset"></i>
+              <span>Included Studio Dubbings (Click to Play)</span>
+            </div>
+            <div id="modal-dubs-list" class="flex flex-wrap gap-1.5"></div>
+          </div>
+
+          <div class="liquid-glass rounded-2xl p-4 space-y-2.5">
+            <div class="text-xs font-bold uppercase tracking-wider opacity-60 flex items-center gap-2">
+              <i class="fa-solid fa-closed-captioning"></i>
+              <span>Included Subtitle Languages</span>
+            </div>
+            <div id="modal-subs-list" class="flex flex-wrap gap-1.5"></div>
+          </div>
+        </div>
+
+        <!-- Episodes List (Shown for Web-Series & Anime) -->
+        <div id="modal-episodes-section" class="space-y-3 hidden">
+          <h3 class="text-base font-bold">Episodes &amp; Simulcast Chapters</h3>
+          <div id="modal-episodes-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       ULTRA-PREMIUM LIQUID GLASS VIDEO PLAYER MODAL (FIXED ALIGNMENT & HUD)
+       Includes: Quality (4K/1080p/720p), Dubbings, Live Subtitles, Speed, Episodes
+       ========================================================================== -->
+  <div id="player-modal" class="fixed inset-0 z-50 hidden bg-black/95 backdrop-blur-2xl flex-col justify-between select-none text-white">
+    
+    <!-- Top Liquid Glass Player Bar -->
+    <div id="player-top-bar" class="relative z-20 px-4 sm:px-8 py-4 flex items-center justify-between gap-4 bg-gradient-to-b from-black/85 to-transparent">
+      <div class="flex items-center gap-3.5 min-w-0">
+        <button onclick="closeVideoPlayer()" class="liquid-glass w-11 h-11 rounded-full flex items-center justify-center text-white hover:scale-105 transition-transform shrink-0" title="Back to Browse (Esc)">
+          <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <div class="min-w-0">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded bg-white text-black">RUP CINEMA</span>
+            <span id="player-active-badges" class="text-xs text-white/75 font-medium truncate">4K HDR • English Dub • English [CC]</span>
+          </div>
+          <h3 id="player-title" class="font-display font-bold text-base sm:text-xl text-white tracking-tight mt-0.5 truncate">Title</h3>
+        </div>
+      </div>
+
+      <!-- Right Top Player Controls: Episode Drawer & Server Mode Toggle -->
+      <div class="flex items-center gap-2.5 shrink-0">
+        <button id="player-episodes-btn" onclick="togglePlayerPanel('episodes')" class="hidden liquid-glass px-4 py-2.5 rounded-full text-xs font-semibold text-white items-center gap-2 hover:bg-white/20">
+          <i class="fa-solid fa-list-ol"></i>
+          <span>Episodes</span>
+        </button>
+        <button onclick="togglePlayerServerMode()" id="player-server-toggle-btn" class="liquid-glass px-4 py-2.5 rounded-full text-xs font-semibold text-white flex items-center gap-2 hover:bg-white/20" title="Switch between Native Liquid Player and External Embed Server">
+          <i class="fa-solid fa-server"></i>
+          <span id="player-server-label" class="hidden sm:inline">Server: RUP Native 4K</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Center Video Viewport -->
+    <div class="relative flex-1 flex items-center justify-center overflow-hidden px-3 sm:px-8">
+      
+      <!-- HTML5 Native Video Element -->
+      <video
+        id="rup-video-element"
+        class="w-full h-full max-h-[72vh] rounded-3xl object-contain shadow-2xl border border-white/15 bg-black cursor-pointer"
+        playsinline
+        crossorigin="anonymous"
+        onclick="togglePlayPause()"
+      >
+        <source id="rup-video-source" src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" type="video/mp4" />
+      </video>
+
+      <!-- Optional External Embed Iframe (For Live TMDB IDs via VidSrc/Embed) -->
+      <iframe
+        id="rup-embed-iframe"
+        class="hidden w-full h-full max-h-[72vh] rounded-3xl border border-white/15 bg-black"
+        allowfullscreen
+        allow="autoplay; encrypted-media"
+      ></iframe>
+
+      <!-- Live On-Screen Multi-Language Subtitle Overlay -->
+      <div id="player-subtitle-box" class="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 pointer-events-none max-w-2xl w-[90%] text-center transition-all duration-300">
+        <span id="player-subtitle-text" class="inline-block px-5 py-2 rounded-2xl text-sm sm:text-lg font-semibold text-white bg-black/75 backdrop-blur-md border border-white/15 shadow-lg">
+          ♪ [Atmospheric RUP Spatial Audio Playing] ♪
+        </span>
+      </div>
+
+      <!-- Floating Liquid Glass Popover: Dubbing, Subtitles & Quality Settings -->
+      <div id="player-settings-popover" class="hidden absolute bottom-4 right-4 sm:right-10 z-30 liquid-glass-elevated rounded-3xl p-5 w-80 sm:w-96 text-white space-y-5 border border-white/25 shadow-2xl">
+        <div class="flex items-center justify-between border-b border-white/15 pb-3">
+          <span class="font-bold text-sm flex items-center gap-2">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Stream, Dubbing &amp; Captions</span>
+          </span>
+          <button onclick="togglePlayerPanel('settings')" class="w-7 h-7 rounded-full liquid-glass flex items-center justify-center text-xs opacity-80 hover:opacity-100">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </div>
+
+        <!-- 1. Audio Dubbing Language Selector -->
+        <div class="space-y-2">
+          <label class="text-[11px] font-bold uppercase tracking-wider opacity-65 flex items-center justify-between">
+            <span><i class="fa-solid fa-microphone-lines mr-1.5"></i>Audio Dubbing Track</span>
+            <span id="active-dub-indicator" class="text-emerald-400">English</span>
+          </label>
+          <div id="player-dub-options" class="grid grid-cols-2 gap-1.5 max-h-28 overflow-y-auto pr-1">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- 2. Subtitles / Captions Language Selector -->
+        <div class="space-y-2">
+          <label class="text-[11px] font-bold uppercase tracking-wider opacity-65 flex items-center justify-between">
+            <span><i class="fa-solid fa-closed-captioning mr-1.5"></i>Subtitles / Captions</span>
+            <span id="active-sub-indicator" class="text-sky-400">English [CC]</span>
+          </label>
+          <div id="player-sub-options" class="grid grid-cols-2 gap-1.5 max-h-28 overflow-y-auto pr-1">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- 3. Video Quality & Speed -->
+        <div class="grid grid-cols-2 gap-3 pt-1">
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">Resolution</label>
+            <select id="player-quality-select" onchange="changePlayerQuality(this.value)" class="w-full liquid-glass rounded-xl px-3 py-2 text-xs font-bold outline-none bg-transparent">
+              <option value="4K HDR" class="bg-zinc-900 text-white">4K Dolby Vision</option>
+              <option value="1080p" class="bg-zinc-900 text-white">1080p Full HD</option>
+              <option value="720p" class="bg-zinc-900 text-white">720p HD</option>
+              <option value="480p" class="bg-zinc-900 text-white">480p Saver</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold uppercase tracking-wider opacity-60 mb-1">Playback Speed</label>
+            <select id="player-speed-select" onchange="changePlayerSpeed(this.value)" class="w-full liquid-glass rounded-xl px-3 py-2 text-xs font-bold outline-none bg-transparent">
+              <option value="0.75" class="bg-zinc-900 text-white">0.75x Slow</option>
+              <option value="1" selected class="bg-zinc-900 text-white">1.0x Normal</option>
+              <option value="1.25" class="bg-zinc-900 text-white">1.25x Fast</option>
+              <option value="1.5" class="bg-zinc-900 text-white">1.5x Otaku</option>
+              <option value="2" class="bg-zinc-900 text-white">2.0x Turbo</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Liquid Glass Popover: Episode Selector inside Player -->
+      <div id="player-episodes-popover" class="hidden absolute bottom-4 right-4 sm:right-10 z-30 liquid-glass-elevated rounded-3xl p-5 w-80 sm:w-96 text-white space-y-3 border border-white/25 shadow-2xl max-h-80 overflow-y-auto">
+        <div class="flex items-center justify-between border-b border-white/15 pb-2">
+          <span class="font-bold text-sm">Switch Episode</span>
+          <button onclick="togglePlayerPanel('episodes')" class="w-7 h-7 rounded-full liquid-glass flex items-center justify-center text-xs opacity-80 hover:opacity-100"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div id="player-episodes-list" class="space-y-2"></div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Floating Liquid Glass Control Bar (Fixed Hover Alignment) -->
+    <div id="player-bottom-controls" class="relative z-20 px-4 sm:px-8 pb-6 pt-2">
+      <div class="max-w-5xl mx-auto liquid-island liquid-player-bar px-5 sm:px-7 py-4 flex flex-col gap-3 text-white">
+        
+        <!-- Timeline Scrubber -->
+        <div class="flex items-center gap-3.5">
+          <span id="player-current-time" class="text-[11px] font-mono opacity-85 w-11 text-left">00:00</span>
+          <input
+            id="player-scrubber"
+            type="range"
+            min="0"
+            max="100"
+            value="0"
+            step="0.1"
+            oninput="seekVideo(this.value)"
+            class="w-full liquid-range"
+          />
+          <span id="player-duration" class="text-[11px] font-mono opacity-85 w-11 text-right">00:00</span>
+        </div>
+
+        <!-- Transport & Multi-Language Controls Row -->
+        <div class="flex items-center justify-between gap-2">
+          
+          <!-- Left: Play/Pause, Skip -10s/+10s, Volume -->
+          <div class="flex items-center gap-3 sm:gap-4">
+            <button onclick="togglePlayPause()" id="player-play-btn" class="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center hover:scale-105 transition-transform shadow-md">
+              <i id="player-play-icon" class="fa-solid fa-pause text-sm"></i>
+            </button>
+
+            <button onclick="skipSeconds(-10)" class="liquid-glass px-3 py-2 rounded-full opacity-85 hover:opacity-100 text-xs flex items-center gap-1.5" title="Rewind 10s">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span class="text-[10px] font-bold">10s</span>
+            </button>
+
+            <button onclick="skipSeconds(10)" class="liquid-glass px-3 py-2 rounded-full opacity-85 hover:opacity-100 text-xs flex items-center gap-1.5" title="Forward 10s">
+              <i class="fa-solid fa-rotate-right"></i>
+              <span class="text-[10px] font-bold">10s</span>
+            </button>
+
+            <div class="hidden sm:flex items-center gap-2.5 pl-1">
+              <button onclick="toggleMute()" id="player-mute-btn" class="w-8 h-8 rounded-full liquid-glass flex items-center justify-center opacity-85 hover:opacity-100">
+                <i id="player-volume-icon" class="fa-solid fa-volume-high text-xs"></i>
+              </button>
+              <input
+                id="player-volume-slider"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value="1"
+                oninput="changeVolume(this.value)"
+                class="w-20 liquid-range"
+              />
+            </div>
+          </div>
+
+          <!-- Right: Dubbing, Subtitles, Quality, PiP, Fullscreen -->
+          <div class="flex items-center gap-2 sm:gap-2.5">
+            <!-- Quick Dub & Sub Trigger -->
+            <button onclick="togglePlayerPanel('settings')" class="liquid-glass px-3.5 py-2 rounded-full text-xs font-semibold flex items-center gap-2 hover:bg-white/20">
+              <i class="fa-solid fa-language"></i>
+              <span id="player-quick-lang-label">EN Dub • CC</span>
+            </button>
+
+            <!-- Quality Pill -->
+            <button onclick="togglePlayerPanel('settings')" id="player-quality-badge" class="hidden sm:inline-flex liquid-glass px-3.5 py-2 rounded-full text-[11px] font-bold tracking-wider hover:bg-white/20">
+              4K HDR
+            </button>
+
+            <!-- Picture in Picture -->
+            <button onclick="togglePiP()" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center text-xs hover:bg-white/20" title="Picture-in-Picture">
+              <i class="fa-solid fa-clone"></i>
+            </button>
+
+            <!-- Fullscreen -->
+            <button onclick="toggleFullscreen()" class="liquid-glass w-9 h-9 rounded-full flex items-center justify-center text-xs hover:bg-white/20" title="Fullscreen Cinema">
+              <i class="fa-solid fa-expand"></i>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ==========================================================================
+       LIQUID GLASS TOAST NOTIFICATION
+       ========================================================================== -->
+  <div id="rup-toast" class="fixed top-20 right-6 z-50 pointer-events-none opacity-0 translate-y-[-12px] transition-all duration-500">
+    <div class="liquid-glass-elevated px-5 py-3 rounded-2xl flex items-center gap-3 text-xs sm:text-sm font-semibold shadow-2xl border border-white/25 text-white">
+      <i id="rup-toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
+      <span id="rup-toast-msg">Preference updated</span>
+    </div>
+  </div>
+
+  <!-- Main Application JavaScript -->
+  <script src="app.js"></script>
+</body>
+</html>
